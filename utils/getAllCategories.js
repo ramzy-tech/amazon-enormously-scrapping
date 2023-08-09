@@ -1,4 +1,17 @@
-async function getAllCategories(page) {
+import puppeteer from "puppeteer";
+
+async function getAllCategories() {
+  // Launch the browser and open a new blank page
+  const browser = await puppeteer.launch({
+    headless: false,
+    defaultViewport: false,
+    userDataDir: "./tmp",
+  });
+  const page = await browser.newPage();
+
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36"
+  );
   // Navigate the page to a URL
   await page.goto("https://www.amazon.com/");
   await page.waitForSelector(`#nav-hamburger-menu`);
@@ -31,6 +44,8 @@ async function getAllCategories(page) {
       ? category
       : { ...category, url: `https://www.amazon.com${category.url}` }
   );
+
+  await browser.close();
 
   return categories;
 }
