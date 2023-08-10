@@ -9,9 +9,10 @@ async function addTotalItems(items) {
         ?.children("span")
         ?.text();
 
-      item.numberOfProducts = itemInfo
+      let numberOfProductsString = itemInfo
         ?.match(/\d+,?\d+\sresults/)[0]
         ?.replace(/\s?results/, "");
+      item.numberOfProducts = convertToNumber(numberOfProductsString);
     } catch (error) {
       console.log(error.message);
     }
@@ -19,3 +20,6 @@ async function addTotalItems(items) {
 }
 
 export default addTotalItems;
+function convertToNumber(numberString) {
+  return Number(numberString.replace(",", ""));
+}

@@ -1,10 +1,11 @@
 import outputToTestPage from "./outputToTestPage.js";
 import getItemDetails from "./getItemDetails.js";
+import { parentPort, workerData } from "node:worker_threads";
 import fetchAndLoad from "./fetchAndLoad.js";
 
-export default async function getCategoryData(category, numberOfItems) {
+(async function getCategoryData() {
   const categoryData = [];
-  let { url: pageUrl } = category;
+  let { url: pageUrl, numberOfTakes: numberOfItems } = workerData;
 
   do {
     const nextPage = await getPageItemsData(
@@ -15,10 +16,13 @@ export default async function getCategoryData(category, numberOfItems) {
     pageUrl = nextPage;
   } while (categoryData.length < numberOfItems);
 
-  return categoryData;
-}
+  console.log("Done with a category");
+  parentPort.postMessage(categoryData);
+  // return categoryData;
+})();
 
-const getPageItemsData = async (pageUrl, categoryData, numberOfItems) => {
+async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
+  console.log(pageUrl);
   let itemsURLs = [];
   let nextPage = null;
 
@@ -42,4 +46,4 @@ const getPageItemsData = async (pageUrl, categoryData, numberOfItems) => {
   } catch (error) {
     console.log(error.message);
   }
-};
+}

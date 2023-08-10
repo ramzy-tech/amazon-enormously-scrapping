@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 
-async function getAllCategories() {
+async function getAllCategoriesInfo() {
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch({
     headless: false,
@@ -50,4 +50,4 @@ async function getAllCategories() {
   return categories;
 }
 
-export default getAllCategories;
+export default getAllCategoriesInfo;

@@ -4,7 +4,7 @@ import fs from "fs/promises";
 
 async function outputToTestPage(url, path) {
   try {
-    const responce = await fetch("https://www.amazon.com/", metaData);
+    const responce = await fetch(url, metaData);
     if (!responce.ok) {
       console.log("err test page");
     }
