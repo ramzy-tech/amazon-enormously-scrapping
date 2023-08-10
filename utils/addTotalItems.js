@@ -1,13 +1,9 @@
-import * as cheerio from "cheerio";
-import axios from "axios";
-import metaData from "../metaData.js";
+import fetchAndLoad from "./fetchAndLoad.js";
 
 async function addTotalItems(items) {
   for (const item of items) {
     try {
-      const responce = await fetch(item.url, metaData);
-      const page = await responce.text();
-      const $ = cheerio.load(page);
+      const $ = fetchAndLoad(item.url);
       let itemInfo = $(".s-desktop-toolbar .sg-col-inner .a-spacing-top-small")
         ?.first()
         ?.children("span")

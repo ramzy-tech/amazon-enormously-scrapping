@@ -1,31 +1,45 @@
-import metaData from "../metaData.js";
-import * as cheerio from "cheerio";
 import outputToTestPage from "./outputToTestPage.js";
 import getItemDetails from "./getItemDetails.js";
+import fetchAndLoad from "./fetchAndLoad.js";
 
-async function getCategoryData(categories) {
-  const { url: categoryURL } = categories[0];
-  const itemsURLs = [];
+export default async function getCategoryData(category, numberOfItems) {
   const categoryData = [];
-  try {
-    const responce = await fetch(categoryURL, metaData);
-    const categoryPage = await responce.text();
+  let { url: pageUrl } = category;
 
-    const $ = cheerio.load(categoryPage);
+  do {
+    const nextPage = await getPageItemsData(
+      pageUrl,
+      categoryData,
+      numberOfItems
+    );
+    pageUrl = nextPage;
+  } while (categoryData.length < numberOfItems);
+
+  return categoryData;
+}
+
+const getPageItemsData = async (pageUrl, categoryData, numberOfItems) => {
+  let itemsURLs = [];
+  let nextPage = null;
+
+  try {
+    const $ = await fetchAndLoad(pageUrl);
     const items = $("div[data-index]");
     items.each((i, item) =>
-      itemsURLs.push($(item).find("a").first().attr("href"))
+      itemsURLs.push($(item).find(".a-link-normal").first().attr("href"))
     );
+    itemsURLs = itemsURLs.filter((itemUrl) => itemUrl);
+    itemsURLs = itemsURLs.map((itemUrl) => `https://www.amazon.com/${itemUrl}`);
 
     for (const itemUrl of itemsURLs) {
-      if (!itemUrl) return;
+      if (categoryData.length === numberOfItems) break;
 
       const itemData = await getItemDetails(itemUrl);
       categoryData.push(itemData);
     }
+    nextPage = $(".s-pagination-next")?.first().attr("href");
+    return `https://www.amazon.com/${nextPage}`;
   } catch (error) {
     console.log(error.message);
   }
-}
-
-export default getCategoryData;
+};

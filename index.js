@@ -6,6 +6,7 @@ import filterItems from "./utils/filterItems.js";
 import addTotalItems from "./utils/addTotalItems.js";
 import metaData from "./metaData.js";
 import getCategoryData from "./utils/getCategoryData.js";
+import getItemDetails from "./utils/getItemDetails.js";
 
 (async () => {
   // let categories = [];
@@ -27,15 +28,25 @@ import getCategoryData from "./utils/getCategoryData.js";
   //   subCategory: [],
   // });
 
-  const itemsData = await fs.readFile("./data/products-report.json", "utf8");
-  let categories = JSON.parse(itemsData);
-  console.log(`All items ${categories.length}`);
+  const categoriesData = await fs.readFile(
+    "./data/products-report.json",
+    "utf8"
+  );
+  let categories = JSON.parse(categoriesData);
+  // console.log(`All items ${categories.length}`);
   // await addTotalItems(categories);
-  categories = categories.filter((category) => category.numberOfProducts);
+  // categories = categories.filter((category) => category.numberOfProducts);
 
-  console.log(`After filter ${categories.length}`);
-  // await getCategoryData(categories);
+  // console.log(`After filter ${categories.length}`);
 
-  // await writeDataToFile(categories);
-  console.log("Done...");
+  console.log("start");
+  const startTime = performance.now();
+  const categoryData = await getCategoryData(categories[0], 3);
+  const endTime = performance.now();
+
+  await writeDataToFile(categoryData, "./data.json");
+  console.log("Total items: ", categoryData.length);
+  console.log(
+    `web scraping took ${(endTime - startTime) / 1000} seconds to complete.`
+  );
 })();

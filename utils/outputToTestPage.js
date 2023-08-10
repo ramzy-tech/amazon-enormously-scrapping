@@ -2,14 +2,14 @@ import metaData from "../metaData.js";
 import * as cheerio from "cheerio";
 import fs from "fs/promises";
 
-async function outputToTestPage(url) {
+async function outputToTestPage(url, path) {
   try {
-    const responce = await fetch(url, metaData);
+    const responce = await fetch("https://www.amazon.com/", metaData);
     if (!responce.ok) {
       console.log("err test page");
     }
     const page = await responce.text();
-    await fs.writeFile("./testPage.html", page);
+    await fs.writeFile(path, page);
   } catch (error) {
     console.log(error.message);
   }
