@@ -76,7 +76,7 @@ async function getAllCategoriesData(
     data.forEach((categoryRes, index) => {
       if (categoryRes.status === "fulfilled") {
         categoriesData.push({
-          title: categories[categoryIndex + index]["main-category"],
+          title: categories[categoryIndex + index]["sub-category"],
           data: categoryRes.value,
         });
       }

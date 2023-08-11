@@ -22,7 +22,6 @@ import fetchAndLoad from "./fetchAndLoad.js";
 })();
 
 async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
-  console.log(pageUrl);
   let itemsURLs = [];
   let nextPage = null;
 
