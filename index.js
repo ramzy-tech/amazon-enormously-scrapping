@@ -7,6 +7,7 @@ import filterItems from "./utils/filterItems.js";
 import addTotalItems from "./utils/addTotalItems.js";
 import metaData from "./metaData.js";
 import getItemDetails from "./utils/getItemDetails.js";
+import appendDataToFile from "./utils/appendDataToFile.js";
 
 (async () => {
   // let categories = [];
@@ -32,18 +33,12 @@ import getItemDetails from "./utils/getItemDetails.js";
     "utf8"
   );
   let categories = JSON.parse(categoriesData);
-  // console.log(`All items ${categories.length}`);
-  // await addTotalItems(categories);
-
-  // console.log(`After filter ${categories.length}`);
 
   categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
-  const categoryData = await getAllCategoriesData(categories, 1200, 3);
+  await getAllCategoriesData(categories, 1200, 3);
   const endTime = performance.now();
-
-  writeDataToFile(categoryData, "./data/data.json");
 
   // console.log("Total items: ", categoryData.length);
   console.log(
@@ -58,8 +53,8 @@ async function getAllCategoriesData(
   totalItemsCount,
   numberOfCores
 ) {
-  const categoriesData = [];
   categories = setNumberOfTakes(categories, totalItemsCount);
+  console.log("Done With Setting Number Of Takes From Each Category..");
   for (
     let categoryIndex = 0;
     categoryIndex < categories.length;
@@ -73,18 +68,17 @@ async function getAllCategoriesData(
     }
 
     const data = await Promise.allSettled(workers);
-    data.forEach((categoryRes, index) => {
+    console.log("All Threads Has Finished An Iteration...");
+    data.forEach(async (categoryRes, index) => {
       if (categoryRes.status === "fulfilled") {
-        categoriesData.push({
+        const category = {
           title: categories[categoryIndex + index]["sub-category"],
           data: categoryRes.value,
-        });
+        };
+        await appendDataToFile(category, "./data/data.json");
       }
     });
-    // writeDataToFile(categoriesData, "./sample.json");
   }
-
-  return categoriesData;
 }
 
 function setNumberOfTakes(categories, totalCount) {

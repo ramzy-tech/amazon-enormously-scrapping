@@ -2,13 +2,14 @@ export default {
   headers: {
     accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-    "accept-language": "en-GB,en;q=0.9",
-    "cache-control": "max-age=0",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,ar;q=0.7",
+    "cache-control": "no-cache",
     "device-memory": "8",
-    downlink: "10",
+    downlink: "1.25",
     dpr: "1",
-    ect: "4g",
-    rtt: "250",
+    ect: "3g",
+    pragma: "no-cache",
+    rtt: "400",
     "sec-ch-device-memory": "8",
     "sec-ch-dpr": "1",
     "sec-ch-ua":
@@ -24,7 +25,7 @@ export default {
     "upgrade-insecure-requests": "1",
     "viewport-width": "1920",
     cookie:
-      'csm-sid=298-5472693-9578935; x-amz-captcha-1=1691695235354424; x-amz-captcha-2=yWrRs01Jmi7p390RojeHtw==; skin=noskin; session-id=132-7314750-9154746; session-id-time=2082787201l; i18n-prefs=USD; sp-cdn="L5Z9:EG"; ubid-main=134-0356177-2199509; session-token=q865CAkiGowTERG3gC6/tI15yIKwaZK181S3HHVljDKxsCMwbJXhryTdFUqa6oZ2sQy45TYZjbsYvSXvKt5YIzImoVI+SDBP86sfnS7aafYTHNa9ghuzkooqDm8qCJSLxpxQ5tzWmUVyCQrQJ3g8kZ7JSwjLdOPVzyL0RaUJA6QPhL5bqUAOTGMCaj34lRSI8fHD5C8UMT0bKvASmydXgowazbGLcEaQI7LTRxJ+ERA=; csm-hit=tb:BS2SMAGKB203H4ESHSP9+s-BS2SMAGKB203H4ESHSP9|1691688148285&t:1691688148285&adb:adblk_no',
+      'session-id=260-3225574-8422760; i18n-prefs=EGP; lc-acbeg=ar_AE; ubid-acbeg=258-1990430-9641935; session-id-time=2082787201l; csm-hit=tb:J4FWW7Q81ZDGNRDR6YEG+s-1SGRVPGGGTF8KDRHNY6E|1692034301449&t:1692034301449&adb:adblk_no; session-token="Fq8QwqjLqCn7NNzcC+aoNHga+gUmYSUQbAFqTl3JCupNEtwQM9C7dwntCDUukDAZAL3AiWRv6lMHt3pY0wR7E1ValpJ/DMOeTv5bKsFDmmIzgJAkWGfnVskPAwSZuQ861vqQ/PcWNy7y7ycs2Vzd2Wffc9BpGnMkxB5yfrwguh+WRPyz+1hwpJ6L9cLXEohs0wn7piT8I8V1B3dkvR9TFUOry9NQMo6cDIOr+KWv/do="',
   },
   referrerPolicy: "strict-origin-when-cross-origin",
   body: null,

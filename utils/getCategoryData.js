@@ -7,6 +7,7 @@ import fetchAndLoad from "./fetchAndLoad.js";
   const categoryData = [];
   let { url: pageUrl, numberOfTakes: numberOfItems } = workerData;
 
+  console.log("Working On Category ", pageUrl);
   do {
     const nextPage = await getPageItemsData(
       pageUrl,
@@ -24,13 +25,18 @@ import fetchAndLoad from "./fetchAndLoad.js";
 async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
   let itemsURLs = [];
   let nextPage = null;
+  console.log("Working On Page ", pageUrl);
 
   try {
     const $ = await fetchAndLoad(pageUrl);
     const items = $("div[data-index]");
+
     items.each((i, item) =>
       itemsURLs.push($(item).find(".a-link-normal").first().attr("href"))
     );
+
+    console.log("items URLs, ", itemsURLs.length);
+
     itemsURLs = itemsURLs.filter((itemUrl) => itemUrl);
     itemsURLs = itemsURLs.map((itemUrl) => `https://www.amazon.com/${itemUrl}`);
 
@@ -41,8 +47,14 @@ async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
       categoryData.push(itemData);
     }
     nextPage = $(".s-pagination-next")?.first().attr("href");
+    if (!nextPage) {
+      // await outputToTestPage($.html(), "./test.html");
+      debugger;
+      throw new Error(`Error on category ${pageUrl}`);
+    }
     return `https://www.amazon.com/${nextPage}`;
   } catch (error) {
-    console.log(error.message);
+    console.log(error.message || "Error");
+    throw error;
   }
 }
