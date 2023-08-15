@@ -36,7 +36,7 @@ async function getPageItemsData(
   try {
     const $ = await fetchAndLoad(pageUrl);
     const items = $("div[data-index]");
-
+    const html = $.html();
     items.each((i, item) =>
       itemsURLs.push($(item).find(".a-link-normal").first().attr("href"))
     );

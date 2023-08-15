@@ -37,9 +37,9 @@ import appendDataToFile from "./utils/appendDataToFile.js";
   categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
-  await appendDataToFile("{items:[", "./data/data.json");
-  await getAllCategoriesData(categories, 1200, 3);
-  await appendDataToFile("]}", "./data/data.json");
+  await fs.appendFile("./data/data.json", '{"items":[');
+  // await getAllCategoriesData(categories, 1200, 3);
+  await fs.appendFile("./data/data.json", "]}");
   const endTime = performance.now();
 
   // console.log("Total items: ", categoryData.length);
