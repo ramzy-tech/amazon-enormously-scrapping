@@ -1,11 +1,16 @@
 import fetchAndLoad from "./fetchAndLoad.js";
 import outputToTestPage from "./outputToTestPage.js";
 
-export default async function getItemDetails(url) {
+export default async function getItemDetails(url, numberOfTrys) {
   const itemData = {};
   try {
-    const $ = await fetchAndLoad(url);
-    itemData.title = $("#productTitle")?.text().trim();
+    const $ = await fetchAndLoad(url, numberOfTrys);
+    // const html = $.html();
+    itemData.title = $("span#productTitle")?.text().trim();
+    if (!itemData.title && numberOfTrys > 0) {
+      getItemDetails(url, --numberOfTrys);
+      return;
+    }
     itemData.price = getItemPrice($);
     itemData.priceBeforeDiscount = $(".basisPrice .a-offscreen")
       ?.first()
@@ -26,7 +31,6 @@ export default async function getItemDetails(url) {
     console.log(error.message);
   }
 }
-
 const getItemBrand = ($) => {
   if ($(".po-brand .po-break-word").length) {
     return $(".po-brand .po-break-word")?.text();

@@ -37,7 +37,9 @@ import appendDataToFile from "./utils/appendDataToFile.js";
   categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
+  await appendDataToFile("{items:[", "./data/data.json");
   await getAllCategoriesData(categories, 1200, 3);
+  await appendDataToFile("]}", "./data/data.json");
   const endTime = performance.now();
 
   // console.log("Total items: ", categoryData.length);
@@ -47,6 +49,12 @@ import appendDataToFile from "./utils/appendDataToFile.js";
     )} Seconds to complete.`
   );
 })();
+
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 async function getAllCategoriesData(
   categories,
@@ -76,8 +84,10 @@ async function getAllCategoriesData(
           data: categoryRes.value,
         };
         await appendDataToFile(category, "./data/data.json");
+        await appendDataToFile(",", "./data/data.json");
       }
     });
+    await delay(100);
   }
 }
 
@@ -130,9 +140,13 @@ function createWorker(categoryPage) {
     const worker = new Worker("./utils/getCategoryData.js", {
       workerData: categoryPage,
     });
-    worker.on("message", (categoryData) => resolve(categoryData));
-    worker.on("error", (err) =>
-      reject(err.message || "Something went wrong...")
-    );
+    worker.on("message", (categoryData) => {
+      worker.terminate();
+      resolve(categoryData);
+    });
+    worker.on("error", (err) => {
+      worker.terminate();
+      reject(err.message || "Something went wrong...");
+    });
   });
 }

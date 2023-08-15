@@ -12,7 +12,8 @@ import fetchAndLoad from "./fetchAndLoad.js";
     const nextPage = await getPageItemsData(
       pageUrl,
       categoryData,
-      numberOfItems
+      numberOfItems,
+      3
     );
     pageUrl = nextPage;
   } while (categoryData.length < numberOfItems);
@@ -22,7 +23,12 @@ import fetchAndLoad from "./fetchAndLoad.js";
   // return categoryData;
 })();
 
-async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
+async function getPageItemsData(
+  pageUrl,
+  categoryData,
+  numberOfItems,
+  numberOfTrys
+) {
   let itemsURLs = [];
   let nextPage = null;
   console.log("Working On Page ", pageUrl);
@@ -35,21 +41,26 @@ async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
       itemsURLs.push($(item).find(".a-link-normal").first().attr("href"))
     );
 
-    console.log("items URLs, ", itemsURLs.length);
+    if (itemsURLs.length === 0 && numberOfTrys > 0) {
+      getPageItemsData(pageUrl, categoryData, numberOfItems, --numberOfTrys);
+      return;
+    }
 
     itemsURLs = itemsURLs.filter((itemUrl) => itemUrl);
     itemsURLs = itemsURLs.map((itemUrl) => `https://www.amazon.com/${itemUrl}`);
 
+    console.log("items URLs, ", itemsURLs.length);
+
     for (const itemUrl of itemsURLs) {
       if (categoryData.length === numberOfItems) break;
 
-      const itemData = await getItemDetails(itemUrl);
-      categoryData.push(itemData);
+      const itemData = await getItemDetails(itemUrl, 3);
+      if (itemData) categoryData.push(itemData);
     }
     nextPage = $(".s-pagination-next")?.first().attr("href");
     if (!nextPage) {
       // await outputToTestPage($.html(), "./test.html");
-      debugger;
+      // debugger;
       throw new Error(`Error on category ${pageUrl}`);
     }
     return `https://www.amazon.com/${nextPage}`;
