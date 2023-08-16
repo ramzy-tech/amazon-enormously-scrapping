@@ -11,6 +11,7 @@ async function fetchAndLoad(url) {
     const page = await responce.text();
     if (/automated access to amazon/i.test(page)) {
       console.log("Robot Page Found...");
+      debugger;
       return;
     }
     const $ = cheerio.load(page);

@@ -6,20 +6,25 @@ import fetchAndLoad from "./fetchAndLoad.js";
 
 export async function getCategoryData(pageUrl, numberOfItems) {
   const categoryData = [];
+  let total = 0,
+    drops = 0;
+
   console.log("Working On Category ", pageUrl);
   do {
-    const nextPage = await getPageItemsData(
+    const [nextPage, totalItems, totalDrops] = await getPageItemsData(
       pageUrl,
       categoryData,
       numberOfItems,
       3
     );
+    total += totalItems;
+    drops += totalDrops;
     if (!nextPage) break;
     pageUrl = nextPage;
   } while (categoryData.length < numberOfItems);
 
   console.log("Done with a category");
-  return categoryData;
+  return { categoryData, total, drops };
 }
 
 async function getPageItemsData(
@@ -30,20 +35,22 @@ async function getPageItemsData(
 ) {
   let itemsURLs = [];
   let nextPage = null;
+  let totalItems = 0;
+  let totalDrops = 0;
   try {
     console.log("Working On Page ", pageUrl);
     const $ = await fetchAndLoad(pageUrl);
-    if (!$ && numberOfTrys > 0) {
+    if (!$ && numberOfTrys > 1) {
       await getPageItemsData(
         pageUrl,
         categoryData,
         numberOfItems,
         --numberOfTrys
       );
-      return;
+      return [];
     }
 
-    if (!$) return;
+    if (!$) return [];
 
     const items = $("div[data-index]");
     items.each((i, item) =>
@@ -58,11 +65,15 @@ async function getPageItemsData(
       if (categoryData.length === numberOfItems) break;
 
       const itemData = await getItemDetails(itemUrl, 1);
-      if (itemData) categoryData.push(itemData);
+      totalItems++;
+
+      itemData ? categoryData.push(itemData) : totalDrops++;
     }
+
     nextPage = $(".s-pagination-next")?.first().attr("href");
-    if (!nextPage) return;
-    return `https://www.amazon.com/${nextPage}`;
+    if (!nextPage) return [null, totalItems, totalDrops];
+
+    return [`https://www.amazon.com/${nextPage}`, totalItems, totalDrops];
   } catch (error) {
     console.log("Page Error");
     console.log(error.message || "Error");

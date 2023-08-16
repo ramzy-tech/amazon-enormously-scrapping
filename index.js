@@ -38,11 +38,13 @@ import { getCategoryData } from "./utils/getCategoryData.js";
   // categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
-  const categoryData = await getCategoryData(
+  let { categoryData, total, drops } = await getCategoryData(
     "https://www.amazon.com/s?i=specialty-aps&bbn=16225009011&rh=n%3A%2116225009011%2Cn%3A281407&ref=nav_em__nav_desktop_sa_intl_accessories_and_supplies_0_2_5_2",
     600
   );
-  await fs.writeFile("./data/data.json", JSON.stringify(categoryData));
+  if (categoryData.length)
+    await fs.writeFile("./data/data.json", JSON.stringify(categoryData));
+
   const endTime = performance.now();
 
   // console.log("Total items: ", categoryData.length);
@@ -51,6 +53,12 @@ import { getCategoryData } from "./utils/getCategoryData.js";
       (endTime - startTime) / (1000 * 60)
     )} Minutes to complete.`
   );
+  total = Number.isNaN(total) && 0;
+  drops = Number.isNaN(drops) && 0;
+  console.log("Total items: ", total);
+  console.log("Total drops: ", drops);
+  const Percentage = Math.round((total / drops) * 100);
+  console.log("Percentage: ", Number.isNaN(Percentage) && 0);
 })();
 
 export function delay(ms) {
