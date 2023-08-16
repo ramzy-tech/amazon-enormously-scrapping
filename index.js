@@ -8,6 +8,7 @@ import addTotalItems from "./utils/addTotalItems.js";
 import metaData from "./metaData.js";
 import getItemDetails from "./utils/getItemDetails.js";
 import appendDataToFile from "./utils/appendDataToFile.js";
+import { getCategoryData } from "./utils/getCategoryData.js";
 
 (async () => {
   // let categories = [];
@@ -28,32 +29,38 @@ import appendDataToFile from "./utils/appendDataToFile.js";
   //   ],
   //   subCategory: [],
   // });
-  const categoriesData = await fs.readFile(
-    "./data/products-report.json",
-    "utf8"
-  );
-  let categories = JSON.parse(categoriesData);
+  // const categoriesData = await fs.readFile(
+  //   "./data/products-report.json",
+  //   "utf8"
+  // );
+  // let categories = JSON.parse(categoriesData);
 
-  categories = categories.filter((category) => category.numberOfProducts);
+  // categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
-  await fs.appendFile("./data/data.json", '{"items":[');
-  // await getAllCategoriesData(categories, 1200, 3);
-  await fs.appendFile("./data/data.json", "]}");
+  const categoryData = await getCategoryData(
+    "https://www.amazon.com/s?i=specialty-aps&bbn=16225009011&rh=n%3A%2116225009011%2Cn%3A281407&ref=nav_em__nav_desktop_sa_intl_accessories_and_supplies_0_2_5_2",
+    600
+  );
+  await fs.writeFile("./data/data.json", JSON.stringify(categoryData));
   const endTime = performance.now();
 
   // console.log("Total items: ", categoryData.length);
   console.log(
     `web scraping took ${Math.round(
-      (endTime - startTime) / 1000
-    )} Seconds to complete.`
+      (endTime - startTime) / (1000 * 60)
+    )} Minutes to complete.`
   );
 })();
 
-function delay(ms) {
+export function delay(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+export function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 async function getAllCategoriesData(
