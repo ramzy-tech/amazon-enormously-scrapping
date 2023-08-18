@@ -34,9 +34,9 @@ import appendDataToFile from "./utils/appendDataToFile.js";
   categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
-  await writeFile("[", "./data/data.json");
-  await getAllCategoriesData(categories, 1200, 3);
-  await appendFile("]", "./data/data.json");
+  await writeFile("./data/data.json", "[");
+  const numberOfItems = await getAllCategoriesData(categories, 5000, 3);
+  await appendFile("./data/data.json", "]");
   const endTime = performance.now();
 
   // console.log("Total items: ", categoryData.length);
@@ -45,6 +45,7 @@ import appendDataToFile from "./utils/appendDataToFile.js";
       (endTime - startTime) / 1000
     )} Seconds to complete.`
   );
+  console.log("Total Data Fetched: ", numberOfItems);
 })();
 
 function delay(ms) {
@@ -59,7 +60,13 @@ async function getAllCategoriesData(
   numberOfCores
 ) {
   categories = setNumberOfTakes(categories, totalItemsCount);
+  await writeFile(
+    "./data/products-takes-report.json",
+    JSON.stringify(categories)
+  );
   console.log("Done With Setting Number Of Takes From Each Category..");
+  let numboerOfItems = 0;
+
   for (
     let categoryIndex = 0;
     categoryIndex < categories.length;
@@ -74,62 +81,70 @@ async function getAllCategoriesData(
 
     const data = await Promise.allSettled(workers);
     console.log("All Threads Has Finished An Iteration...");
-    data.forEach(async (categoryRes, index) => {
+
+    for (const categoryRes of data) {
       if (categoryRes.status === "fulfilled") {
         const category = {
           title: categories[categoryIndex + index]["sub-category"],
           data: categoryRes.value,
         };
-        await appendDataToFile(category, "./data/data.json");
-        await appendDataToFile(",", "./data/data.json");
+        await appendFile("./data/data.json", JSON.stringify(category));
+        await appendFile("./data/data.json", ",");
+        numboerOfItems += category.data.length;
       }
-    });
-    await delay(100);
+    }
+
+    console.log("Number of items so far: ", numboerOfItems);
   }
+  return numboerOfItems;
 }
 
 function setNumberOfTakes(categories, totalCount) {
-  const countPerCategory = Math.floor(totalCount / categories.length);
+  try {
+    const countPerCategory = Math.floor(totalCount / categories.length);
 
-  let categoriesWithSpare = categories.filter(
-    (category) => category.numberOfProducts > countPerCategory
-  );
-
-  const categoriesWithShortage =
-    categories.filter((category) => {
-      if (category.numberOfProducts < countPerCategory) {
-        category.numberOfTakes = category.numberOfProducts;
-        return true;
-      }
-    }) ?? [];
-
-  let shortageCount =
-    categoriesWithShortage.length > 0 &&
-    categoriesWithShortage.reduce(
-      (shortageTotal, category) =>
-        (shortageTotal += countPerCategory - category.numberOfProducts),
-      0
+    let categoriesWithSpare = categories.filter(
+      (category) => category.numberOfProducts > countPerCategory
     );
-  let addedCountToSpare =
-    Math.floor(shortageCount / categoriesWithSpare.length) ?? 0;
 
-  do {
-    categoriesWithSpare = categoriesWithSpare.map((category, i) => {
-      let numberNeeded = countPerCategory + addedCountToSpare;
-      if (category.numberOfProducts > numberNeeded) {
-        category.numberOfTakes = numberNeeded;
-        shortageCount -= addedCountToSpare;
-        category.numberOfTakes = numberNeeded;
-      } else {
-        let availableToSpare = category.numberOfProducts - countPerCategory;
-        shortageCount -= availableToSpare;
-        category.numberOfTakes = countPerCategory + availableToSpare;
-      }
-      return category;
-    });
-  } while (shortageCount > 0);
+    const categoriesWithShortage =
+      categories.filter((category) => {
+        if (category.numberOfProducts < countPerCategory) {
+          category.numberOfTakes = category.numberOfProducts;
+          return true;
+        }
+      }) ?? [];
 
-  return [...categoriesWithSpare, ...categoriesWithShortage];
+    let shortageCount =
+      categoriesWithShortage.length > 0 &&
+      categoriesWithShortage.reduce(
+        (shortageTotal, category) =>
+          (shortageTotal += countPerCategory - category.numberOfProducts),
+        0
+      );
+    let addedCountToSpare =
+      Math.ceil(shortageCount / categoriesWithSpare.length) ?? 0;
+
+    do {
+      categoriesWithSpare = categoriesWithSpare.map((category, i) => {
+        let numberNeeded = countPerCategory + addedCountToSpare;
+        if (category.numberOfProducts > numberNeeded) {
+          category.numberOfTakes = numberNeeded;
+          shortageCount -= addedCountToSpare;
+          category.numberOfTakes = numberNeeded;
+        } else {
+          let availableToSpare = category.numberOfProducts - countPerCategory;
+          shortageCount -= availableToSpare;
+          category.numberOfTakes = countPerCategory + availableToSpare;
+        }
+        return category;
+      });
+    } while (shortageCount > 0);
+
+    return [...categoriesWithSpare, ...categoriesWithShortage];
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 function createWorker(categoryPage) {

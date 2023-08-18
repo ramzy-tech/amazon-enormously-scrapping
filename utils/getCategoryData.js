@@ -12,44 +12,33 @@ import fetchAndLoad from "./fetchAndLoad.js";
     const nextPage = await getPageItemsData(
       pageUrl,
       categoryData,
-      numberOfItems,
-      3
+      numberOfItems
     );
+    if (!nextPage) break;
     pageUrl = nextPage;
   } while (categoryData.length < numberOfItems);
 
   console.log("Done with a category");
   parentPort.postMessage(categoryData);
-  // return categoryData;
 })();
 
-async function getPageItemsData(
-  pageUrl,
-  categoryData,
-  numberOfItems,
-  numberOfTrys
-) {
+async function getPageItemsData(pageUrl, categoryData, numberOfItems) {
   let itemsURLs = [];
   let nextPage = null;
-  console.log("Working On Page ", pageUrl);
 
   try {
+    console.log("Working On Page ", pageUrl);
     const $ = await fetchAndLoad(pageUrl);
-    const items = $("div[data-index]");
 
+    const items = $("div[data-index]");
     items.each((i, item) =>
       itemsURLs.push($(item).find(".a-link-normal").first().attr("href"))
     );
 
-    if (itemsURLs.length === 0 && numberOfTrys > 0) {
-      getPageItemsData(pageUrl, categoryData, numberOfItems, --numberOfTrys);
-      return;
-    }
-
     itemsURLs = itemsURLs.filter((itemUrl) => itemUrl);
     itemsURLs = itemsURLs.map((itemUrl) => `https://www.amazon.com/${itemUrl}`);
 
-    console.log("items URLs, ", itemsURLs.length);
+    console.log("Items URLs, ", itemsURLs.length);
 
     for (const itemUrl of itemsURLs) {
       if (categoryData.length === numberOfItems) break;
@@ -57,15 +46,12 @@ async function getPageItemsData(
       const itemData = await getItemDetails(itemUrl, 3);
       if (itemData) categoryData.push(itemData);
     }
+
     nextPage = $(".s-pagination-next")?.first().attr("href");
-    if (!nextPage) {
-      // await outputToTestPage($.html(), "./test.html");
-      // debugger;
-      throw new Error(`Error on category ${pageUrl}`);
-    }
+    if (!nextPage) return;
+
     return `https://www.amazon.com/${nextPage}`;
   } catch (error) {
     console.log(error.message || "Error");
-    throw error;
   }
 }

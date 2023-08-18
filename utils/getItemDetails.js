@@ -4,13 +4,12 @@ import outputToTestPage from "./outputToTestPage.js";
 export default async function getItemDetails(url, numberOfTrys) {
   const itemData = {};
   try {
+    console.log("Working On item: ", url);
     const $ = await fetchAndLoad(url, numberOfTrys);
-    // const html = $.html();
+
+    if (!$) return;
+
     itemData.title = $("span#productTitle")?.text().trim();
-    if (!itemData.title && numberOfTrys > 0) {
-      getItemDetails(url, --numberOfTrys);
-      return;
-    }
     itemData.price = getItemPrice($);
     itemData.priceBeforeDiscount = $(".basisPrice .a-offscreen")
       ?.first()
