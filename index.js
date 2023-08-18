@@ -82,7 +82,7 @@ async function getAllCategoriesData(
     const data = await Promise.allSettled(workers);
     console.log("All Threads Has Finished An Iteration...");
 
-    for (const categoryRes of data) {
+    for (const [index, categoryRes] of data.entries()) {
       if (categoryRes.status === "fulfilled") {
         const category = {
           title: categories[categoryIndex + index]["sub-category"],
