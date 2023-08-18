@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import fs from "fs/promises";
+import { readFile, appendFile, writeFile } from "fs/promises";
 import { Worker } from "node:worker_threads";
 import getAllCategoriesInfo from "./utils/getAllCategoriesInfo.js";
 import writeDataToFile from "./utils/writeDataToFile.js";
@@ -28,18 +28,15 @@ import appendDataToFile from "./utils/appendDataToFile.js";
   //   ],
   //   subCategory: [],
   // });
-  const categoriesData = await fs.readFile(
-    "./data/products-report.json",
-    "utf8"
-  );
+  const categoriesData = await readFile("./data/products-report.json", "utf8");
   let categories = JSON.parse(categoriesData);
 
   categories = categories.filter((category) => category.numberOfProducts);
 
   const startTime = performance.now();
-  await appendDataToFile("{items:[", "./data/data.json");
+  await writeFile("[", "./data/data.json");
   await getAllCategoriesData(categories, 1200, 3);
-  await appendDataToFile("]}", "./data/data.json");
+  await appendFile("]", "./data/data.json");
   const endTime = performance.now();
 
   // console.log("Total items: ", categoryData.length);

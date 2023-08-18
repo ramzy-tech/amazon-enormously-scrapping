@@ -1,7 +1,5 @@
-import metaData from "../metaData.js";
 import * as cheerio from "cheerio";
-import writeDataToFile from "./writeDataToFile.js";
-import outputToTestPage from "./outputToTestPage.js";
+import request from "request-promise";
 
 async function fetchAndLoad(url) {
   try {
